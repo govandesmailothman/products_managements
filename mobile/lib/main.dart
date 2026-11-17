@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'features/products/providers/product_provider.dart';
-import 'features/products/screens/products_screen.dart';
+import 'features/products/presentation/providers/product_provider.dart';
+import 'features/products/presentation/screens/products_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();

@@ -2,11 +2,22 @@
 
 namespace App\Services;
 
+use App\Application\Products\DTOs\CreateProductDTO;
+use App\Application\Products\UseCases\CreateProductUseCase;
+use App\Application\Products\UseCases\GetAllProductsUseCase;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Collection;
 
+/**
+ * Service facade delegating to Clean Architecture Use Cases.
+ */
 class ProductService
 {
+    public function __construct(
+        protected GetAllProductsUseCase $getAllProductsUseCase,
+        protected CreateProductUseCase $createProductUseCase,
+    ) {}
+
     /**
      * Retrieve all products ordered by the most recently created.
      *
@@ -14,7 +25,7 @@ class ProductService
      */
     public function getAllProducts(): Collection
     {
-        return Product::latest('id')->get();
+        return $this->getAllProductsUseCase->execute();
     }
 
     /**
@@ -24,6 +35,6 @@ class ProductService
      */
     public function createProduct(array $data): Product
     {
-        return Product::create($data);
+        return $this->createProductUseCase->execute(CreateProductDTO::fromArray($data));
     }
 }

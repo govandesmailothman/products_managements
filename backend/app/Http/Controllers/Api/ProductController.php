@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Application\Products\DTOs\CreateProductDTO;
+use App\Application\Products\UseCases\CreateProductUseCase;
+use App\Application\Products\UseCases\GetAllProductsUseCase;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Resources\ProductResource;
-use App\Services\ProductService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,10 +15,11 @@ use Symfony\Component\HttpFoundation\Response;
 class ProductController extends Controller
 {
     /**
-     * Inject the ProductService for clean separation of concerns.
+     * Inject Application Use Cases according to Clean Architecture.
      */
     public function __construct(
-        protected ProductService $productService
+        protected GetAllProductsUseCase $getAllProductsUseCase,
+        protected CreateProductUseCase $createProductUseCase,
     ) {}
 
     /**
@@ -26,7 +29,7 @@ class ProductController extends Controller
      */
     public function index(): AnonymousResourceCollection
     {
-        $products = $this->productService->getAllProducts();
+        $products = $this->getAllProductsUseCase->execute();
 
         return ProductResource::collection($products);
     }
@@ -38,7 +41,8 @@ class ProductController extends Controller
      */
     public function store(StoreProductRequest $request): JsonResponse
     {
-        $product = $this->productService->createProduct($request->validated());
+        $dto = CreateProductDTO::fromArray($request->validated());
+        $product = $this->createProductUseCase->execute($dto);
 
         return (new ProductResource($product))
             ->additional([
